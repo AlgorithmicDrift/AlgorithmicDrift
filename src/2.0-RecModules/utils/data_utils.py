@@ -74,13 +74,14 @@ def get_parsed_args(argv):
     topk = 10
     retrain = False
     user_count_start = 0
-    user_count_end = 100  # num_users
+    user_count_end = 500  # num_users
+    gpu_id = "0"
 
     if len(argv) > 1:
 
         if argv[2].startswith("SyntheticDataset"):
             _, path, folder, model, module, eta, strategy, factor, sub_strategy, topk, \
-                retrain, user_count_start, user_count_end = argv
+                retrain, user_count_start, user_count_end, gpu_id = argv
 
             topk = int(topk)
             user_count_start = int(user_count_start)
@@ -101,7 +102,8 @@ def get_parsed_args(argv):
                 topk,
                 retrain,
                 user_count_start,
-                user_count_end)
+                user_count_end,
+                gpu_id)
 
     keys = [
         "path",
@@ -115,9 +117,10 @@ def get_parsed_args(argv):
         "topk",
         "retrain",
         "user_count_start",
-        "user_count_end"]
+        "user_count_end",
+        "gpu_id"]
     values = [path, folder, model, module, eta, strategy, factor, sub_strategy, topk,
-              retrain, user_count_start, user_count_end]
+              retrain, user_count_start, user_count_end, gpu_id]
 
     args = dict(zip(keys, values))
 

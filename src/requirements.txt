@@ -29,6 +29,7 @@ idna==3.3
 igraph==0.9.11
 importlib-metadata==4.11.3
 importlib-resources==5.8.0
+intel-openmp==2023.1.0
 ipykernel==6.15.1
 ipysankeywidget==0.4.2
 ipython==8.4.0
@@ -51,12 +52,15 @@ Markdown==3.3.7
 MarkupSafe==2.1.1
 matplotlib==3.5.2
 matplotlib-inline==0.1.3
+matplotx==0.3.10
 mistune==0.8.4
+mkl==2023.1.0
+mkl-service==2.4.0
 nbclient==0.6.6
 nbconvert==6.5.0
 nbformat==5.4.0
 nest-asyncio==1.5.5
-networkx==2.8.5
+networkx==2.6.3
 notebook==6.4.12
 numpy==1.22.3
 oauthlib==3.2.0
@@ -93,12 +97,13 @@ requests==2.27.1
 requests-oauthlib==1.3.1
 rsa==4.8
 scikit-learn==1.1.1
-scipy==1.6.0
+scipy==1.8.0
 seaborn==0.11.2
 Send2Trash==1.8.0
 six==1.16.0
 soupsieve==2.3.2.post1
 stack-data==0.3.0
+tbb==2021.9.0
 tensorboard==2.9.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
@@ -112,6 +117,7 @@ tornado==6.2
 tqdm==4.64.0
 traitlets==5.3.0
 typing-extensions==4.2.0
+tzdata==2023.3
 urllib3==1.26.9
 wcwidth==0.2.5
 webencodings==0.5.1

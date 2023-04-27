@@ -1,13 +1,27 @@
+import sys
+
+import torch.cuda
 from run_processes import run_processes
 import numpy as np
+import torch
+import os
+import time
 
-path = "../../data/processed/"
+path = "../../new_normal_data_500/processed/"
 folder = "SyntheticDataset/History_80_10/"
 
-user_count_start_args = "0"
-user_count_end_args = "100"
+gpu_id = "0"
 
-module = "generation"  # training, evaluation, generation, merge_rec_sessions, recbole_dataset
+user_count_start_args = "0"
+user_count_end_args = "500"
+
+module = "evaluation"  # training, evaluation, generation, merge_rec_sessions, recbole_dataset
+dataset = None
+
+if len(sys.argv) >= 3:
+    dataset = sys.argv[1]
+    module = sys.argv[2]
+
 # OCCHIO A INDICES TO CALL
 
 # "No_strategy", "No_feedbackloop_no_strategy", "Preprocessing", "Inprocessing_adversarial", "Inprocessing_penalization",
@@ -36,11 +50,13 @@ elif strategy == "Sparsity":
 
 # choose the etas, one factor (and one sub strategy)
 if to_parallelize == "eta":
-    eta_args = ["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"]
+    eta_args = ["0.65_0.2_0.15", "0.7_0.2_0.1", "0.75_0.2_0.05", "0.79_0.2_0.01",
+                "0.45_0.4_0.15", "0.5_0.4_0.1", "0.55_0.4_0.05", "0.59_0.4_0.01",
+                "0.25_0.6_0.15", "0.3_0.6_0.1", "0.35_0.6_0.05", "0.39_0.6_0.01"]
     factors_args = np.repeat("{}_0.001".format(factor_name), len(eta_args))
     sub_strategies_args = np.repeat("Harmful_dynamic", len(eta_args))
     topk_args = np.repeat("10", len(eta_args))
-    models_args = np.repeat("RecVAE", len(eta_args))
+    models_args = np.repeat("UserKNN", len(eta_args))
 
 # choose the factors, one eta (and one sub strategy)
 elif to_parallelize == "factors":
@@ -112,16 +128,17 @@ elif to_parallelize == "topk":
     models_args = np.repeat("Pop", len(topk_args))
 
 elif to_parallelize == "models":
-    models_args = ["LightGCN", "MultiVAE", "NGCF", "RecVAE", 'UserKNN']
+    models_args = ["RecVAE", "LightGCN", "MultiVAE", "NGCF", 'UserKNN']
     factors_args = np.repeat("{}_75".format(factor_name), len(models_args))
     sub_strategies_args = np.repeat("Random", len(models_args))
-    eta_args = np.repeat("(0.4, 0.5, 0.1)", len(models_args))
+    eta_args = np.repeat("0.79_0.2_0.01", len(models_args)) if dataset is None \
+                                        else np.repeat(dataset, len(models_args))
     topk_args = np.repeat("10", len(models_args))
 
 retrain_args = np.repeat("0", len(eta_args))
 
 # "to_parallelize" to call in parallel (each row will be called in parallel)
-indices_call = [[0, 1, 2, 3, 4]]# 2, 3, 4]]#, 5]]#, 6, 7, 8]]
+indices_call = [[0, 1, 2, 3, 4]]#, [4, 5, 6, 7], [8, 9, 10, 11]]  # 2, 3, 4]]#, 5]]#, 6, 7, 8]]
 
 if len(eta_args) != len(sub_strategies_args):
     print("Check arrays")
@@ -140,4 +157,5 @@ run_processes(
     retrain_args,
     user_count_start_args,
     user_count_end_args,
+    gpu_id,
     indices_call)

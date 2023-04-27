@@ -63,7 +63,7 @@ def get_parameter_dict(args, model_checkpoint_folder):
         parameter_dict["epochs"] = 200
 
     elif model == "UserKNN":
-        parameter_dict["k"] = 10
+        parameter_dict["k"] = 25  # 10
         parameter_dict["method"] = "user"
         parameter_dict["epochs"] = 1
 

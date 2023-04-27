@@ -1,25 +1,18 @@
 import sys
 import os
 
+import numpy as np
+import torch.cuda
+
 # add 2.0-RecModules folder in sys.path
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 
-import time
-from sklearn.preprocessing import normalize
-from scipy.sparse import lil_matrix
+
 from os.path import exists
-import matplotlib.pyplot as plt
-import torch
-from logging import getLogger
 import logging
 import pandas as pd
-import numpy as np
-import csv
-import copy
-from recbole.trainer import *
-from recbole.model.context_aware_recommender import *
 from recbole.utils import init_logger, init_seed
 from recbole.config import Config
 from recbole.data.utils import *
@@ -29,6 +22,9 @@ from utils.model_utils import load_model, train_model, get_parameter_dict, rewir
 from utils.data_utils import create_folders, get_dataset_name_and_paths, get_parsed_args
 
 args = get_parsed_args(sys.argv)
+print(args)
+
+torch.cuda.set_device(int(args["gpu_id"]))
 
 dataset_path, dataset_name, saving_path = get_dataset_name_and_paths(args)
 
@@ -125,6 +121,7 @@ config = Config(
 # SET CONFIG DEVICE
 config["device"] = "cuda"
 
+
 # init random seed
 init_seed(config["seed"], config["reproducibility"])
 
@@ -206,8 +203,8 @@ elif args["module"] == "generation":
     if args["retrain"]:
         graphs_folder = graphs_folder[:-1] + "_retrain/"
 
-    B = 100
-    d = 200
+    B = 50  # 100
+    d = 100  # 200
 
     if args["strategy"] == "Preprocessing":  # rewiring is necessary
         _, _, history_dataset, _, _, _ = load_model(

@@ -6,8 +6,6 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 
-print(parent)
-
 from os.path import exists
 from joblib import Parallel, delayed
 from utils.merge_rec_sessions import merge_rec_sessions
@@ -46,6 +44,7 @@ def run_processes(
         retrain_args,
         user_count_start_args,
         user_count_end_args,
+        gpu_id,
         indices_call):
     num_calls = len(eta_args)
 
@@ -71,7 +70,8 @@ def run_processes(
                                                               topk_args[i],
                                                               retrain_args[i],
                                                               user_count_start_args,
-                                                              user_count_end_args],
+                                                              user_count_end_args,
+                                                              gpu_id],
                                                              i) for i in range(num_calls))
 
         # Generate graphs/ training / evaluation for each eta_args
@@ -80,7 +80,7 @@ def run_processes(
                 Parallel(n_jobs=len(indices_call[index]), prefer='threads')(
                     delayed(handle_processes)(["python", program_to_call, path, folder, models_args[i], module,
                                                eta_args[i], strategy, factors_args[i], sub_strategies_args[i], topk_args[i],
-                                               retrain_args[i], user_count_start_args, user_count_end_args], i)
+                                               retrain_args[i], user_count_start_args, user_count_end_args, gpu_id], i)
                     for i in indices_call[index])
 
             # Merge rec sessions for each eta_args
@@ -113,7 +113,8 @@ def run_processes(
                                   topk_args[i],
                                   retrain_args[i],
                                   user_count_start_args,
-                                  user_count_end_args],
+                                  user_count_end_args,
+                                  gpu_id],
                                  0)
 
 

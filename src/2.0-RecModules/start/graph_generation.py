@@ -254,8 +254,11 @@ def generate_organic_graphs(T_tensor, history_dataset, name, dataset_path, B, d,
         'ignore',
         category=scipy.sparse.SparseEfficiencyWarning)
 
-    saving_path += "a_0/"
+    saving_path += "a_0.4/"
     graphs_folder = saving_path + "graphs/"
+
+    if not os.path.exists(graphs_folder):
+        os.makedirs(graphs_folder)
 
     user_count_start = args["user_count_start"]
     user_count_end = args["user_count_end"]
@@ -276,7 +279,7 @@ def generate_organic_graphs(T_tensor, history_dataset, name, dataset_path, B, d,
     # noise_cov = torch.mm(noise_cov, noise_cov.t())
     # noise_cov.add_(torch.eye(noise_cov.shape[0]))
 
-    shrinkage_alpha = None  # 0.4
+    shrinkage_alpha = 0.4
 
     org_alpha2results = {}
 
@@ -403,8 +406,8 @@ def generate_graphs(
         non_rad_users=non_rad_users, semi_rad_users=semi_rad_users,
         args=args)
     # we have to convert scores into rank and use "inverse log" probs to sample
-    probs = [1 / np.log(k + 1) for k in range(1, topk + 1)]
-    probs /= np.sum(probs)
+    position_probs = [1 / np.log(k + 1) for k in range(1, topk + 1)]
+    position_probs /= np.sum(position_probs)
 
     utilities = []  # final "accuracies" (mean of axis=1) per user
 
@@ -464,9 +467,13 @@ def generate_graphs(
                 results = model.predict_for_graphs(interactions, user_count_start)
 
             scores = results.view(-1, num_items + 1).detach().cpu().numpy()
+            #print("AFTER")
+            #print(len(np.nonzero(scores[126])[0]))
             scores[:, 0] = -np.inf  # set scores of [pad] to -inf
 
             nullify_history_scores(temp_histories, scores)
+            #print("AFTER NULLIFY")
+            #print(len(np.nonzero(scores[126])[0]))
 
             if post_processing_mitigation is not None:
                 lmbd = float(args["factor"].split("_")[1])
@@ -484,9 +491,10 @@ def generate_graphs(
             scores = torch.FloatTensor(scores)
 
             if model_name != "Random":
-                _, topk_recommendations = torch.topk(scores, topk)
+                topk_scores, topk_recommendations = torch.topk(scores, topk)
             else:
                 topk_recommendations = []
+                topk_scores = []
                 for _ in range(num_users):
                     topk_recommendations.append(
                         torch.tensor(np.random.choice(range(1, num_items + 1), replace=False, size=topk)))
@@ -500,8 +508,28 @@ def generate_graphs(
 
                 items_exposure[i][topk_recommendations[i].detach().cpu().numpy() - 1] += 1
 
+                scores_probs = np.array(topk_scores[i])
+
+                if (scores_probs == 0.).all():
+                    print("T", j)
+                    if i in non_rad_users:
+                        print("non rad")
+                    elif i in semi_rad_users:
+                        print("semi rad")
+                    else:
+                        print("rad")
+                    print("User", i)
+                    print(scores_probs)
+                    print("SCORES PROBS EQUAL 0")
+                    exit(0)
+
+                scores_probs /= scores_probs.sum()
+
+                linear_combination_probs = 0.5*position_probs + 0.5*scores_probs
+                linear_combination_probs /= np.sum(linear_combination_probs)
+
                 item_sampled = np.random.choice(
-                    topk_recommendations[i].detach().cpu().numpy(), p=probs)
+                    topk_recommendations[i].detach().cpu().numpy(), p=linear_combination_probs)
 
                 # partial_utilities[i] += true_util[i][reverse_videos_dict[item_sampled - 1]]
 

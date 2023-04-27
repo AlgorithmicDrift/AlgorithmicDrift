@@ -38,10 +38,6 @@ def run_processes(
         module,
         eta_args,
         strategy,
-        factors_args,
-        sub_strategies_args,
-        topk_args,
-        retrain_args,
         user_count_start_args,
         user_count_end_args,
         gpu_id,
@@ -65,10 +61,6 @@ def run_processes(
                                                               'recbole_dataset',
                                                               eta_args[i],
                                                               strategy,
-                                                              factors_args[i],
-                                                              sub_strategies_args[i],
-                                                              topk_args[i],
-                                                              retrain_args[i],
                                                               user_count_start_args,
                                                               user_count_end_args,
                                                               gpu_id],
@@ -79,24 +71,20 @@ def run_processes(
             for index in range(len(indices_call)):
                 Parallel(n_jobs=len(indices_call[index]), prefer='threads')(
                     delayed(handle_processes)(["python", program_to_call, path, folder, models_args[i], module,
-                                               eta_args[i], strategy, factors_args[i], sub_strategies_args[i], topk_args[i],
-                                               retrain_args[i], user_count_start_args, user_count_end_args, gpu_id], i)
+                                               eta_args[i], strategy, user_count_start_args, user_count_end_args, gpu_id], i)
                     for i in indices_call[index])
 
             # Merge rec sessions for each eta_args
-            if strategy != "Organic":
-                Parallel(
-                    n_jobs=num_calls,
-                    prefer='threads')(
-                    delayed(merge_rec_sessions)(
-                        path,
-                        folder,
-                        eta_args[i],
-                        strategy,
-                        factors_args[i],
-                        sub_strategies_args[i],
-                        retrain_args[i],
-                        model=models_args[i]) for i in range(num_calls))
+            # if strategy != "Organic":
+            #     Parallel(
+            #         n_jobs=num_calls,
+            #         prefer='threads')(
+            #         delayed(merge_rec_sessions)(
+            #             path,
+            #             folder,
+            #             eta_args[i],
+            #             strategy,
+            #             model=models_args[i]) for i in range(num_calls))
 
         elif module == 'training' or module == 'evaluation':
             for i in range(num_calls):
@@ -108,10 +96,6 @@ def run_processes(
                                   module,
                                   eta_args[i],
                                   strategy,
-                                  factors_args[i],
-                                  sub_strategies_args[i],
-                                  topk_args[i],
-                                  retrain_args[i],
                                   user_count_start_args,
                                   user_count_end_args,
                                   gpu_id],

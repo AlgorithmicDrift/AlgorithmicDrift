@@ -69,7 +69,7 @@ def get_parsed_args(argv):
     module = "evaluation"
     eta = ""
     strategy = "No_strategy"
-    factor = ""
+    factor = "Lambda_0.2"
     sub_strategy = ""
     topk = 10
     retrain = False
@@ -80,8 +80,7 @@ def get_parsed_args(argv):
     if len(argv) > 1:
 
         if argv[2].startswith("SyntheticDataset"):
-            _, path, folder, model, module, eta, strategy, factor, sub_strategy, topk, \
-                retrain, user_count_start, user_count_end, gpu_id = argv
+            _, path, folder, model, module, eta, strategy, user_count_start, user_count_end, gpu_id = argv
 
             topk = int(topk)
             user_count_start = int(user_count_start)

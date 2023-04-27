@@ -434,7 +434,6 @@ def train_model(
                 show_progress=False))
 
     else:
-
         _, score = trainer.fit(
             train_data, valid_data, saved=save_model,
         )

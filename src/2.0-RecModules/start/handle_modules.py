@@ -203,8 +203,8 @@ elif args["module"] == "generation":
     if args["retrain"]:
         graphs_folder = graphs_folder[:-1] + "_retrain/"
 
-    B = 50  # 100
-    d = 100  # 200
+    B = 50
+    d = 100
 
     if args["strategy"] == "Preprocessing":  # rewiring is necessary
         _, _, history_dataset, _, _, _ = load_model(

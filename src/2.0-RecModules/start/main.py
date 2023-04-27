@@ -22,8 +22,6 @@ if len(sys.argv) >= 3:
     dataset = sys.argv[1]
     module = sys.argv[2]
 
-# OCCHIO A INDICES TO CALL
-
 # "No_strategy", "No_feedbackloop_no_strategy", "Preprocessing", "Inprocessing_adversarial", "Inprocessing_penalization",
 # "Postprocessing", "Organic", "Sparsity"
 strategy = "No_strategy"
